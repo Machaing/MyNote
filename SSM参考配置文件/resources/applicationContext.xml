@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--    //基础IOC的约束，必备-->
+<!--    xmlns="http://www.springframework.org/schema/beans"-->
+<!--    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+
+<!--    开启注解管理Bean对象的约束-->
+<!--    xmlns:context="http://www.springframework.org/schema/context"-->
+
+<!--    //aop的注解约束-->
+<!--    xmlns:aop="http://www.springframework.org/schema/aop"-->
+
+<!--    //事务的约束-->
+<!--    xmlns:tx="http://www.springframework.org/schema/tx"-->
+
+<!--    //基础IOC的约束-->
+<!--    xsi:schemaLocation="http://www.springframework.org/schema/beans-->
+<!--    http://www.springframework.org/schema/beans/spring-beans.xsd-->
+
+<!--    //开启注解管理Bean对象的约束-->
+<!--    http://www.springframework.org/schema/context-->
+<!--    http://www.springframework.org/schema/context/spring-context.xsd-->
+
+<!--    //aop的注解约束-->
+<!--    http://www.springframework.org/schema/aop-->
+<!--    http://www.springframework.org/schema/aop/spring-aop.xsd-->
+
+<!--    //事务的约束-->
+<!--    http://www.springframework.org/schema/tx-->
+<!--    http://www.springframework.org/schema/tx/spring-tx.xsd">-->
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--开启扫描注解，扫描Service 和 Dao层的注解，忽略Controll层的注解-->
+    <context:component-scan base-package="com.dtsjy">
+        <!--排除controller层的注解扫描-->
+        <!--ctrl+ALT+shitf+N 查找类-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!--****************Spring整合mybatis*******************框架-->
+    <!--配置连接池-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.cj.jdbc.Driver" />
+        <property name="jdbcUrl" value="jdbc:mysql:///users ?serverTimezone=GMT" />
+        <property name="user" value="root" />
+        <property name="password" value="124237" />
+    </bean>
+
+    <!--配置SqlSessionFactory工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--配置User接口所在包-->
+    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.dtsjy.dao"/>
+    </bean>
+
+    <!--配置Spring框架声明式事务管理-->
+    <!--配置事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--配置事务通知-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="*" isolation="DEFAULT"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--配置AOP增强-->
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.dtsjy.service.Impl.*ServiceImpl.*(..))"/>
+    </aop:config>
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
